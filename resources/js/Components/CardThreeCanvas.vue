@@ -6,17 +6,88 @@ const props = defineProps({
     activeSection: {
         type: String,
         default: 'hero'
+    },
+    isDark: {
+        type: Boolean,
+        default: true
     }
 });
 
 const canvasRef = ref(null);
 let renderer, scene, camera, mainGroup, animationFrameId;
 let coreSphere, outerRing, nodeGroup;
+let ambientLight, mainLight, accentLight;
+let coreMaterial, ringMaterial, nodeMaterial;
+
+// Mise à jour complète de l'ambiance visuelle 3D selon le mode
+const applyThemeStyle = (dark) => {
+    if (!coreMaterial || !ringMaterial || !nodeMaterial) return;
+
+    if (dark) {
+        // --- AMBIANCE MODE SOMBRE (Bleu Nuit WhatsApp & Pierre de France) ---
+        scene.background = null;
+
+        // Lumières intenses et contrastées
+        ambientLight.intensity = 0.6;
+        mainLight.color.setHex(0xe3d1be); // Pierre de France
+        mainLight.intensity = 3.5;
+        accentLight.color.setHex(0x111b21); // Bleu Nuit
+        accentLight.intensity = 2.0;
+
+        // Noyau métallique profond
+        coreMaterial.color.setHex(0x0f172a);
+        coreMaterial.roughness = 0.15;
+        coreMaterial.metalness = 0.85;
+        coreMaterial.opacity = 1.0;
+        coreMaterial.transparent = false;
+
+        // Anneau Doré Pierre de France
+        ringMaterial.color.setHex(0xe3d1be);
+        ringMaterial.roughness = 0.2;
+        ringMaterial.metalness = 0.8;
+
+        // Nœuds lumineux
+        nodeMaterial.color.setHex(0xe3d1be);
+        nodeMaterial.emissive.setHex(0x4a2c2a);
+        nodeMaterial.emissiveIntensity = 0.6;
+    } else {
+        // --- AMBIANCE MODE CLAIR (Blanc, Casablanca & Cocoa) ---
+        scene.background = null;
+
+        // Lumière douce et lumineuse
+        ambientLight.intensity = 1.2;
+        mainLight.color.setHex(0xf4a261); // Casablanca
+        mainLight.intensity = 2.5;
+        accentLight.color.setHex(0x4a2c2a); // Cocoa
+        accentLight.intensity = 1.0;
+
+        // Noyau effet "Verre dépoli / Quartz lumineux"
+        coreMaterial.color.setHex(0xffffff);
+        coreMaterial.roughness = 0.1;
+        coreMaterial.metalness = 0.1;
+        coreMaterial.opacity = 0.85;
+        coreMaterial.transparent = true;
+
+        // Anneau couleur Casablanca / Warm Gold
+        ringMaterial.color.setHex(0xf4a261);
+        ringMaterial.roughness = 0.3;
+        ringMaterial.metalness = 0.4;
+
+        // Nœuds couleur Cocoa chaleureux
+        nodeMaterial.color.setHex(0x4a2c2a);
+        nodeMaterial.emissive.setHex(0xf4a261);
+        nodeMaterial.emissiveIntensity = 0.4;
+    }
+};
+
+watch(() => props.isDark, (newVal) => {
+    applyThemeStyle(newVal);
+});
 
 onMounted(() => {
     if (!canvasRef.value) return;
 
-    // 1. Initialisation Scène & Caméra plein écran
+    // 1. Initialisation Scène & Caméra
     scene = new THREE.Scene();
     const width = window.innerWidth;
     const height = window.innerHeight;
@@ -24,28 +95,28 @@ onMounted(() => {
     camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
     camera.position.set(0, 0, 7);
 
-    // 2. Rendu WebGL avec antialiasing
+    // 2. Rendu WebGL
     renderer = new THREE.WebGLRenderer({ canvas: canvasRef.value, alpha: true, antialias: true });
     renderer.setSize(width, height);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-    // 3. Éclairage volumétrique (Amber Gold & Dark Slate)
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+    // 3. Lumières
+    ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
     scene.add(ambientLight);
 
-    const goldLight = new THREE.PointLight(0xf59e0b, 3.5, 25);
-    goldLight.position.set(4, 4, 5);
-    scene.add(goldLight);
+    mainLight = new THREE.PointLight(0xe3d1be, 3.5, 25);
+    mainLight.position.set(4, 4, 5);
+    scene.add(mainLight);
 
-    const accentLight = new THREE.PointLight(0x38bdf8, 2, 20);
+    accentLight = new THREE.PointLight(0x111b21, 2, 20);
     accentLight.position.set(-5, -4, -2);
     scene.add(accentLight);
 
-    // 4. Groupe 3D principal (Objet plein sans wireframe)
+    // 4. Groupe 3D principal
     mainGroup = new THREE.Group();
 
-    // Noyau sombre et métallique
-    const coreMaterial = new THREE.MeshStandardMaterial({
+    // Noyau adaptable
+    coreMaterial = new THREE.MeshStandardMaterial({
         color: 0x0f172a,
         roughness: 0.15,
         metalness: 0.85
@@ -53,9 +124,9 @@ onMounted(() => {
     coreSphere = new THREE.Mesh(new THREE.SphereGeometry(1.8, 64, 64), coreMaterial);
     mainGroup.add(coreSphere);
 
-    // Anneau d'accentuation Doré
-    const ringMaterial = new THREE.MeshStandardMaterial({
-        color: 0xf59e0b,
+    // Anneau d'orbitation
+    ringMaterial = new THREE.MeshStandardMaterial({
+        color: 0xe3d1be,
         roughness: 0.2,
         metalness: 0.9
     });
@@ -63,11 +134,11 @@ onMounted(() => {
     outerRing.rotation.x = Math.PI / 3;
     mainGroup.add(outerRing);
 
-    // Constellation de noeuds en orbite
+    // Nœuds satellite
     nodeGroup = new THREE.Group();
-    const nodeMaterial = new THREE.MeshStandardMaterial({
-        color: 0xfbbf24,
-        emissive: 0xd97706,
+    nodeMaterial = new THREE.MeshStandardMaterial({
+        color: 0xe3d1be,
+        emissive: 0x4a2c2a,
         emissiveIntensity: 0.6,
         roughness: 0.1
     });
@@ -84,7 +155,10 @@ onMounted(() => {
 
     scene.add(mainGroup);
 
-    // 5. Animation réactive aux props (LERP)
+    // Application initiale du thème
+    applyThemeStyle(props.isDark);
+
+    // 5. Animation et positionnement au scroll (LERP)
     let targetX = 2.0;
     let targetY = 0;
     let targetScale = 1;
@@ -92,12 +166,11 @@ onMounted(() => {
     const animate = () => {
         animationFrameId = requestAnimationFrame(animate);
 
-        // Auto-rotation constante de l'ensemble
+        // Auto-rotations
         mainGroup.rotation.y += 0.0025;
         outerRing.rotation.z += 0.004;
         nodeGroup.rotation.y -= 0.003;
 
-        // Repositionnement selon la section courante
         const isMobile = window.innerWidth < 1024;
 
         if (props.activeSection === 'hero') {
@@ -118,7 +191,6 @@ onMounted(() => {
             targetScale = 1.35;
         }
 
-        // Interpolation fluide (Amortissement)
         mainGroup.position.x += (targetX - mainGroup.position.x) * 0.04;
         mainGroup.position.y += (targetY - mainGroup.position.y) * 0.04;
 
@@ -130,7 +202,6 @@ onMounted(() => {
     };
     animate();
 
-    // 6. Handling du Resize
     const handleResize = () => {
         if (!canvasRef.value) return;
         const w = window.innerWidth;
