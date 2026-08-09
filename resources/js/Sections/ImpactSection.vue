@@ -3,7 +3,7 @@ import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { Link } from '@inertiajs/vue3';
 import * as THREE from 'three';
 
-const props = defineProps({
+defineProps({
   isDark: {
     type: Boolean,
     default: true
@@ -15,7 +15,7 @@ const programs = [
   {
     id: 1,
     code: '01',
-    name: 'Éducation',
+    name: 'Éducation & Formation',
     description: 'Renforcement des compétences, accès au savoir et autonomisation durable.',
     href: '/programmes/education',
     color: 0xCFAE4F // Or vieilli
@@ -39,10 +39,10 @@ const programs = [
   {
     id: 4,
     code: '04',
-    name: 'WASH (Eau, Assainissement & Hygiène)',
+    name: 'WASH & Écologie',
     description: 'Accès universel à l’eau potable, réseaux sanitaires et durabilité des ressources.',
     href: '/programmes/wash',
-    color: 0x4A8B9B // Bleu Canard
+    color: 0x2F5D63 // Eau / Bleu Canard
   },
   {
     id: 5,
@@ -64,7 +64,7 @@ const programs = [
 
 const metrics = [
   { value: '100%', label: 'Engagement Communautaire' },
-  { value: '6 Piliers', label: 'Programmes Stratégiques Majeurs' },
+  { value: '6 Piliers', label: 'Programmes Stratégiques' },
   { value: '24/7', label: 'Disponibilité du Réseau' },
   { value: '∞', label: 'Impact Durable' }
 ];
@@ -107,7 +107,7 @@ onMounted(() => {
   // 1. Noyau Central en verre fumé
   const coreGeometry = new THREE.IcosahedronGeometry(1.2, 3);
   const coreMaterial = new THREE.MeshPhysicalMaterial({
-    color: 0x0f171e,
+    color: 0x070a0f,
     roughness: 0.2,
     metalness: 0.8,
     transmission: 0.6,
@@ -149,7 +149,6 @@ onMounted(() => {
     });
     const orb = new THREE.Mesh(orbGeo, orbMat);
     
-    // Calcul d'orbite distribuée
     const radius = 3.2 + (idx % 2) * 0.4;
     const angle = (idx / programs.length) * Math.PI * 2;
     orb.userData = {
@@ -164,14 +163,13 @@ onMounted(() => {
     orb.position.y = Math.sin(idx) * 0.8;
     orb.position.z = Math.sin(angle) * radius;
 
-    // Lumière dédiée par orbe
     const light = new THREE.PointLight(prog.color, 1, 3);
     orb.add(light);
 
     orbMeshes.push(orb);
     scene.add(orb);
 
-    // Ligne d'énergie cachée par défaut
+    // Ligne d'énergie active vers le noyau
     const lineGeo = new THREE.BufferGeometry().setFromPoints([
       new THREE.Vector3(0, 0, 0),
       orb.position
@@ -218,7 +216,7 @@ onMounted(() => {
   particlesMesh = new THREE.Points(pGeometry, pMaterial);
   scene.add(particlesMesh);
 
-  // Lumières ambiantes de scène
+  // Lumières ambiantes
   const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
   scene.add(ambientLight);
 
@@ -226,18 +224,16 @@ onMounted(() => {
   dirLight.position.set(5, 5, 5);
   scene.add(dirLight);
 
-  // Animation Loop
+  // Boucle d'animation
   const animate = () => {
     animationFrameId = requestAnimationFrame(animate);
 
-    // Effet Parallaxe fluide avec la souris
     targetX += (mouseX - targetX) * 0.03;
     targetY += (mouseY - targetY) * 0.03;
 
     scene.rotation.y = targetX * 0.25;
     scene.rotation.x = -targetY * 0.25;
 
-    // Rotation du noyau & des anneaux
     if (coreMesh) {
       coreMesh.rotation.y += 0.003;
       coreMesh.rotation.x += 0.002;
@@ -246,25 +242,19 @@ onMounted(() => {
     if (ringMesh2) ringMesh2.rotation.z -= 0.003;
     if (particlesMesh) particlesMesh.rotation.y += 0.0005;
 
-    // Orbitation des orbes et gestion de l'interaction UI
     orbMeshes.forEach((orb, idx) => {
       if (hoveredProgramIndex.value === null) {
         orb.userData.angle += orb.userData.speed;
         orb.position.x = Math.cos(orb.userData.angle) * orb.userData.baseRadius;
         orb.position.z = Math.sin(orb.userData.angle) * orb.userData.baseRadius;
 
-        // Reset des échelles et opacités
         orb.scale.lerp(new THREE.Vector3(1, 1, 1), 0.1);
         orb.material.emissiveIntensity = THREE.MathUtils.lerp(orb.material.emissiveIntensity, 0.8, 0.1);
-        orb.material.opacity = THREE.MathUtils.lerp(orb.material.opacity || 1, 1, 0.1);
-
         energyLines[idx].material.opacity = THREE.MathUtils.lerp(energyLines[idx].material.opacity, 0, 0.1);
       } else if (hoveredProgramIndex.value === idx) {
-        // Orbe survolée : grossit et brille fortement
         orb.scale.lerp(new THREE.Vector3(2.2, 2.2, 2.2), 0.1);
         orb.material.emissiveIntensity = THREE.MathUtils.lerp(orb.material.emissiveIntensity, 2.5, 0.1);
 
-        // Mise à jour de la ligne d'énergie active vers le noyau
         const positions = energyLines[idx].geometry.attributes.position.array;
         positions[3] = orb.position.x;
         positions[4] = orb.position.y;
@@ -272,7 +262,6 @@ onMounted(() => {
         energyLines[idx].geometry.attributes.position.needsUpdate = true;
         energyLines[idx].material.opacity = THREE.MathUtils.lerp(energyLines[idx].material.opacity, 0.8, 0.1);
       } else {
-        // Orbes non sélectionnées : s'adoucissent
         orb.scale.lerp(new THREE.Vector3(0.7, 0.7, 0.7), 0.1);
         orb.material.emissiveIntensity = THREE.MathUtils.lerp(orb.material.emissiveIntensity, 0.2, 0.1);
         energyLines[idx].material.opacity = THREE.MathUtils.lerp(energyLines[idx].material.opacity, 0, 0.1);
@@ -321,31 +310,27 @@ const clearHoveredProgram = () => {
 
     <div class="relative z-10 container mx-auto max-w-7xl flex flex-col justify-between h-full space-y-16">
       
-      <!-- A. EN-TÊTE DE SECTION -->
+      <!-- EN-TÊTE DE SECTION -->
       <div class="space-y-6 max-w-4xl reveal">
-        
-        <!-- Badge -->
         <div class="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full border border-[#CFAE4F]/30 bg-[#070A0F]/60 backdrop-blur-md shadow-lg">
           <span class="w-2 h-2 rounded-full bg-[#CFAE4F] animate-pulse shadow-[0_0_8px_#CFAE4F]"></span>
           <span class="text-xs font-bold uppercase tracking-widest text-[#CFAE4F]">
-            01 • Impact Global & Vision
+            01 • IMPACT GLOBAL & VISION
           </span>
         </div>
 
-        <!-- Titre Fort -->
-        <h2 class="text-3xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tight leading-[1.05]">
+        <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tight leading-[1.05]">
           Vulgariser le bon sens de la 
           <span class="bg-gradient-to-r from-[#CFAE4F] via-[#E08A70] to-[#D97742] bg-clip-text text-transparent drop-shadow-md">
-            VALEUR
+            VALEUR.
           </span>
           <span class="block text-xl sm:text-3xl lg:text-4xl font-semibold text-slate-300 normal-case mt-3">
             L'impact par la classe, la précision et la profondeur.
           </span>
-        </h2>
-
+        </h1>
       </div>
 
-      <!-- B. GRILLE INTERACTIVE DES 6 PROGRAMMES -->
+      <!-- GRILLE INTERACTIVE DES 6 PROGRAMMES -->
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 relative z-10">
         <Link 
           v-for="(program, index) in programs" 
@@ -353,15 +338,15 @@ const clearHoveredProgram = () => {
           :href="program.href"
           @mouseenter="setHoveredProgram(index)"
           @mouseleave="clearHoveredProgram"
-          class="group relative p-8 rounded-2xl border border-white/10 bg-[#070A0F]/50 backdrop-blur-xl transition-all duration-500 hover:border-[#CFAE4F]/60 hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(207,174,79,0.15)] flex flex-col justify-between h-[240px] overflow-hidden"
+          class="group relative p-8 rounded-2xl border border-white/10 bg-[#070A0F]/60 backdrop-blur-xl transition-all duration-500 hover:border-[#CFAE4F]/60 hover:-translate-y-2 hover:shadow-[0_10px_30px_rgba(207,174,79,0.15)] flex flex-col justify-between h-[240px] overflow-hidden"
         >
-          <!-- Halo Lumineux de contour au survol -->
+          <!-- Halo Lumineux de contour -->
           <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none bg-gradient-to-br from-[#CFAE4F]/10 via-transparent to-[#D97742]/10"></div>
 
-          <!-- Haut de carte : Numéroteur & Flèche d'Action -->
+          <!-- Numéroteur & Flèche -->
           <div class="flex items-center justify-between z-10">
-            <span class="font-mono text-sm font-bold tracking-widest text-[#CFAE4F] group-hover:text-[#D97742] transition-colors duration-300">
-              {{ program.code }}
+            <span class="font-mono text-xs font-bold tracking-widest text-[#CFAE4F] group-hover:text-[#D97742] transition-colors duration-300">
+              {{ program.code }} • PROGRAMME
             </span>
             
             <div class="w-9 h-9 rounded-full border border-white/10 flex items-center justify-center bg-white/5 group-hover:bg-[#CFAE4F] group-hover:text-black group-hover:border-[#CFAE4F] transition-all duration-300 transform group-hover:translate-x-1">
@@ -371,7 +356,7 @@ const clearHoveredProgram = () => {
             </div>
           </div>
 
-          <!-- Centre : Nom & Description -->
+          <!-- Intitulé & Description -->
           <div class="space-y-2 z-10">
             <h3 class="text-xl font-bold tracking-wide group-hover:text-[#CFAE4F] transition-colors duration-300">
               {{ program.name }}
@@ -381,12 +366,11 @@ const clearHoveredProgram = () => {
             </p>
           </div>
 
-          <!-- Ligne décorative au bas de carte -->
           <div class="w-full h-[2px] bg-white/5 group-hover:bg-gradient-to-r group-hover:from-[#CFAE4F] group-hover:to-[#D97742] transition-all duration-500 z-10"></div>
         </Link>
       </div>
 
-      <!-- C. BARRE DE MÉTRIQUES EN BAS DE SECTION -->
+      <!-- BARRE DE MÉTRIQUES DE BAS DE SECTION -->
       <div class="pt-8 border-t border-white/10 grid grid-cols-2 lg:grid-cols-4 gap-6 z-10">
         <div 
           v-for="(metric, idx) in metrics" 
@@ -407,7 +391,6 @@ const clearHoveredProgram = () => {
 </template>
 
 <style scoped>
-/* Effet d'apparition douce des éléments */
 .reveal {
   animation: fadeIn 1s ease-out forwards;
 }

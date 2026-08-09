@@ -1,12 +1,14 @@
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import Hero3DCarousel from '@/Components/Hero3DCarousel.vue';
+import * as THREE from 'three';
 
 defineProps({
   isDark: Boolean
 });
 
 const carouselRef = ref(null);
+const canvasContainer = ref(null);
 
 const galleryImages = [
   '/images/archi.jpeg',
@@ -15,43 +17,130 @@ const galleryImages = [
   '/images/leadership.jpeg',
   '/images/innovation.jpg'
 ];
+
+let scene, camera, renderer, animationFrameId;
+let torusMesh, coreMesh, ambientLight, pointLight;
+
+onMounted(() => {
+  if (!canvasContainer.value) return;
+
+  const width = canvasContainer.value.clientWidth;
+  const height = canvasContainer.value.clientHeight;
+
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 100);
+  camera.position.z = 7;
+
+  renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+  renderer.setSize(width, height);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  canvasContainer.value.appendChild(renderer.domElement);
+
+  const torusGeo = new THREE.TorusGeometry(2.8, 0.15, 24, 100);
+  const torusMat = new THREE.MeshStandardMaterial({
+    color: 0xCFAE4F,
+    wireframe: false,
+    roughness: 0.3,
+    metalness: 0.8
+  });
+  torusMesh = new THREE.Mesh(torusGeo, torusMat);
+  torusMesh.rotation.x = Math.PI / 3;
+  scene.add(torusMesh);
+
+  const coreGeo = new THREE.IcosahedronGeometry(1.6, 2);
+  const coreMat = new THREE.MeshPhysicalMaterial({
+    color: 0x070A0F,
+    roughness: 0.1,
+    metalness: 0.9,
+    clearcoat: 1.0,
+    transparent: true,
+    opacity: 0.85
+  });
+  coreMesh = new THREE.Mesh(coreGeo, coreMat);
+  scene.add(coreMesh);
+
+  ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+  scene.add(ambientLight);
+
+  pointLight = new THREE.PointLight(0xCFAE4F, 2, 10);
+  pointLight.position.set(2, 3, 4);
+  scene.add(pointLight);
+
+  const animate = () => {
+    animationFrameId = requestAnimationFrame(animate);
+
+    if (torusMesh) {
+      torusMesh.rotation.y += 0.002;
+      torusMesh.rotation.x += 0.001;
+    }
+
+    if (coreMesh) {
+      coreMesh.rotation.y -= 0.0015;
+    }
+
+    renderer.render(scene, camera);
+  };
+
+  animate();
+
+  const handleResize = () => {
+    if (!canvasContainer.value) return;
+    const w = canvasContainer.value.clientWidth;
+    const h = canvasContainer.value.clientHeight;
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h);
+  };
+
+  window.addEventListener('resize', handleResize);
+});
+
+onBeforeUnmount(() => {
+  if (animationFrameId) cancelAnimationFrame(animationFrameId);
+  if (renderer) renderer.dispose();
+});
 </script>
 
 <template>
-  <section id="hero" class="min-h-screen container mx-auto px-4 sm:px-6 flex items-center pt-28 pb-16 relative z-10">
+  <section id="hero" class="w-full min-h-screen relative overflow-hidden flex items-center pt-28 pb-16 z-10 bg-[#070A0F]">
     
-    <!-- CADRE PRINCIPAL CONTENANT LES STRATES D'EFFETS -->
-    <div class="w-full rounded-3xl relative overflow-hidden shadow-2xl group/hero">
-      
-      <!-- LAYER 0 (ARRIÈRE-PLAN) : CARROUSEL THREE.JS EN FORMAT 3:4 -->
-      <div class="absolute inset-0 z-0 flex items-center justify-end pr-4 sm:pr-12 pointer-events-auto">
-        <div class="w-full lg:w-1/2 flex justify-center lg:justify-end">
+    <!-- LAYER 0.1 (ARRIÈRE-PLAN THREE.JS ORBITAL) -->
+    <div ref="canvasContainer" class="absolute inset-0 z-0 pointer-events-none w-full h-full opacity-60"></div>
+
+    <!-- LAYER 0.2 : CARROUSEL THREE.JS OCCUPANT PLEINEMENT SA ZONE 3:4 -->
+    <div class="absolute inset-0 z-0 flex items-center justify-end pr-4 sm:pr-8 lg:pr-12 pointer-events-auto">
+      <div class="w-full lg:w-1/2 flex justify-center lg:justify-end">
+        
+        <!-- CONTENEUR 3:4 AGRANDI QUI FORCE L'IMAGE/CANVAS A REMPLIR 100% DE L'ESPACE -->
+        <div class="w-80 sm:w-[460px] lg:w-[560px] xl:w-[600px] aspect-[3/4] relative overflow-hidden rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
           <Hero3DCarousel 
             ref="carouselRef"
             :images="galleryImages" 
-            :isDark="isDark" 
+            :isDark="isDark"
+            class="w-full h-full object-cover"
           />
         </div>
+
       </div>
+    </div>
 
-      <!-- LAYER 1 : 4 BULLES ET TRAÎNÉES EN ARRIÈRE-PLAN DES TEXTES -->
-      <div class="absolute inset-0 pointer-events-none overflow-hidden z-1">
-        <div class="drop drop-1 absolute w-16 h-16 rounded-full blur-xs opacity-75 bg-gradient-to-r from-[#CFAE4F] to-transparent shadow-[0_0_30px_#CFAE4F]"></div>
-        <div class="drop drop-2 absolute w-20 h-20 rounded-full blur-sm opacity-65 bg-gradient-to-r from-[#D97742] to-transparent shadow-[0_0_35px_#D97742]"></div>
-        <div class="drop drop-3 absolute w-14 h-14 rounded-full blur-xs opacity-70 bg-gradient-to-r from-[#9CAF88] to-transparent shadow-[0_0_25px_#9CAF88]"></div>
-        <div class="drop drop-4 absolute w-18 h-18 rounded-full blur-sm opacity-65 bg-gradient-to-r from-[#E8C4C4] to-transparent shadow-[0_0_30px_#E8C4C4]"></div>
-      </div>
+    <!-- LAYER 1 : BULLES ET TRAÎNÉES -->
+    <div class="absolute inset-0 pointer-events-none overflow-hidden z-1">
+      <div class="drop drop-1 absolute w-16 h-16 rounded-full blur-xs opacity-75 bg-gradient-to-r from-[#CFAE4F] to-transparent shadow-[0_0_30px_#CFAE4F]"></div>
+      <div class="drop drop-2 absolute w-20 h-20 rounded-full blur-sm opacity-65 bg-gradient-to-r from-[#D97742] to-transparent shadow-[0_0_35px_#D97742]"></div>
+      <div class="drop drop-3 absolute w-14 h-14 rounded-full blur-xs opacity-70 bg-gradient-to-r from-[#9CAF88] to-transparent shadow-[0_0_25px_#9CAF88]"></div>
+      <div class="drop drop-4 absolute w-18 h-18 rounded-full blur-sm opacity-65 bg-gradient-to-r from-[#E8C4C4] to-transparent shadow-[0_0_30px_#E8C4C4]"></div>
+    </div>
 
-      <!-- LAYER 2 : PLAQUE DE VERRE GLASSMORPHISM (ALLÉGÉE À DROITE ET POUR LES BULLES) -->
-      <div 
-        class="absolute inset-0 z-10 p-6 sm:p-12 rounded-3xl border transition-all duration-700 pointer-events-none glass-mask"
-        :class="isDark 
-          ? 'bg-[#0b141a]/50 border-white/10 shadow-black/60' 
-          : 'bg-white/50 border-slate-200/60 shadow-slate-300/40'"
-      ></div>
+    <!-- LAYER 2 : PLAQUE DE VERRE GLASSMORPHISM PLEINE SURFACE -->
+    <div 
+      class="absolute inset-0 z-10 transition-all duration-700 pointer-events-none glass-mask"
+      :class="isDark ? 'bg-[#070A0F]/60' : 'bg-white/40'"
+    ></div>
 
-      <!-- LAYER 3 : CONTENU TEXTE ET INTERACTIF (AU PREMIER PLAN) -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center p-6 sm:p-12 relative z-20 pointer-events-auto">
+    <!-- LAYER 3 : CONTENU TEXTE -->
+    <div class="container mx-auto px-6 sm:px-12 relative z-20 pointer-events-auto w-full">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
         
         <!-- ZONE TEXTE -->
         <div class="lg:col-span-6 space-y-8 reveal">
@@ -100,25 +189,23 @@ const galleryImages = [
 
         </div>
 
-        <!-- ESPACEMENT DROITE POUR ALIGNEMENT PARFAIT AVEC LE CARROUSEL EN ARRIÈRE-PLAN -->
-        <div class="lg:col-span-6 h-[480px] hidden lg:block pointer-events-none"></div>
+        <!-- ESPACEMENT ADAPTÉ À LA HAUTEUR DU CARROUSEL -->
+        <div class="lg:col-span-6 h-[600px] hidden lg:block pointer-events-none"></div>
 
       </div>
-
     </div>
+
   </section>
 </template>
 
 <style scoped>
-/* Floutage dégradé : plus prononcé à gauche pour la lisibilité du texte, très léger à droite pour rendre le carrousel net */
 .glass-mask {
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.2) 100%);
-  -webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.5) 50%, rgba(0, 0, 0, 0.2) 100%);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.6) 50%, rgba(0, 0, 0, 0.25) 100%);
+  -webkit-mask-image: linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.6) 50%, rgba(0, 0, 0, 0.25) 100%);
 }
 
-/* Animations fluides des 4 bulles */
 @keyframes floatDrop1 {
   0% { top: -10%; left: 10%; opacity: 0; }
   20% { opacity: 0.85; }
