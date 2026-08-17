@@ -102,7 +102,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <section id="hero" class="w-full min-h-screen relative overflow-hidden flex items-center pt-28 pb-16 z-10 bg-[#070A0F]">
+  <section id="hero" class="w-full min-h-screen relative overflow-hidden flex items-center pt-28 pb-16 z-10 bg-[#070A0F] times-font font-serif">
     
     <!-- LAYER 0.1 (ARRIÈRE-PLAN THREE.JS ORBITAL) -->
     <div ref="canvasContainer" class="absolute inset-0 z-0 pointer-events-none w-full h-full opacity-60"></div>
@@ -111,7 +111,7 @@ onBeforeUnmount(() => {
     <div class="absolute inset-0 z-0 flex items-center justify-end pr-4 sm:pr-8 lg:pr-12 pointer-events-auto">
       <div class="w-full lg:w-1/2 flex justify-center lg:justify-end">
         
-        <!-- CONTENEUR 3:4 AGRANDI QUI FORCE L'IMAGE/CANVAS A REMPLIR 100% DE L'ESPACE -->
+        <!-- CONTENEUR 3:4 AGRANDI -->
         <div class="w-80 sm:w-[460px] lg:w-[560px] xl:w-[600px] aspect-[3/4] relative overflow-hidden rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.5)]">
           <Hero3DCarousel 
             ref="carouselRef"
@@ -199,6 +199,11 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+.times-font,
+.times-font * {
+  font-family: 'Times New Roman', Times, serif !important;
+}
+
 .glass-mask {
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);

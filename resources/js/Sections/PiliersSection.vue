@@ -14,40 +14,40 @@ defineProps({
 const pillars = [
   {
     code: '01 • PROGRAMME',
-    title: 'Éducation & Formation',
-    description: 'Formation d\'élite, activités socio-éducatives et accompagnement familial pour la jeunesse.',
+    title: 'Programme Éducation',
+    description: 'Soutien, formations et activités socio-éducatives adaptées aux jeunes et enfants (8-28 ans); action aux familles.',
     image: '/images/education.jpg',
     href: '/programmes/education',
     themeColor: 0xCFAE4F // Or vieilli
   },
   {
     code: '02 • PROGRAMME',
-    title: 'Investissement & Architecture',
-    description: 'Conception de cadres durables, études techniques et appui stratégique aux infrastructures.',
+    title: 'Programme Investissement & Architecture',
+    description: "Études, conception et appui aux projets d'infrastructure et d'ingénierie.",
     image: '/images/archi.jpeg',
     href: '/programmes/investissement-architecture',
     themeColor: 0xD97742 // Terracotta
   },
   {
     code: '03 • PROGRAMME',
-    title: 'Hygiène & Santé',
-    description: 'Sensibilisation communautaire et élévation des normes sanitaires locales.',
+    title: 'Programme Hygiène & Santé',
+    description: "Initiatives de sensibilisation et d'amélioration des conditions sanitaires et d'hygiène pour les communautés.",
     image: '/images/sante.jpg',
     href: '/programmes/hygiene-sante',
     themeColor: 0x9CAF88 // Vert Sauge
   },
   {
     code: '04 • PROGRAMME',
-    title: 'WASH & Écologie',
-    description: 'Gestion des ressources en eau potable, assainissement et protection des écosystèmes.',
+    title: 'Programme Wash (Eau & Environnement)',
+    description: "Projets de gestion des ressources en eau, assainissement urbain et protection de l'environnement.",
     image: '/images/environnement.jpeg',
     href: '/programmes/wash',
     themeColor: 0x2F5D63 // Eau / Bleu Canard
   },
   {
     code: '05 • PROGRAMME',
-    title: 'Leadership & Management',
-    description: 'Coaching de cadres, gouvernance d\'excellence et autonomisation des talents.',
+    title: 'Programme Leadership, Management, Organisation & Gestion',
+    description: 'Formations et conseils stratégiques pour renforcer les capacités des individus, des organisations et des jeunes leaders.',
     image: '/images/leadership.jpeg',
     href: '/programmes/leadership-management',
     themeColor: 0xE8C4C4 // Rose Sand
@@ -55,7 +55,7 @@ const pillars = [
   {
     code: '06 • PROGRAMME',
     title: 'Programme de Recherche',
-    description: 'Analyses scientifiques, data et propositions stratégiques fondées sur la création de valeur.',
+    description: 'Analyses et propositions sur des stratégies et des croissances basées sur la compréhension pour la création de la valeur et de la profondeur.',
     image: '/images/innovation.jpg',
     href: '/programmes/recherche',
     themeColor: 0xE08A70 // Corail Brûlé
@@ -185,12 +185,12 @@ const onCardLeave = () => {
 </script>
 
 <template>
-  <section id="piliers" class="min-h-screen relative overflow-hidden bg-[#070A0F] text-[#F5F1E8] py-24 px-4 sm:px-8 lg:px-16 flex flex-col justify-center z-10">
+  <section id="piliers" class="min-h-screen relative overflow-hidden bg-[#070A0F] text-[#F5F1E8] py-24 px-4 sm:px-8 lg:px-16 flex flex-col justify-center z-10 times-new-roman">
     
     <!-- ARRIÈRE-PLAN THREE.JS (Sphère + Anneau 3D) -->
     <div ref="canvasContainer" class="absolute inset-0 z-0 pointer-events-none w-full h-full opacity-60"></div>
 
-    <div class="relative z-10 container mx-auto max-w-7xl space-y-16">
+    <div class="relative z-10 container mx-auto max-w-7xl space-y-12">
       
       <!-- EN-TÊTE DE SECTION -->
       <div class="max-w-3xl space-y-4 reveal">
@@ -201,12 +201,23 @@ const onCardLeave = () => {
           </span>
         </div>
 
+        <!-- CONSERVATION DU TITRE DE DÉPART -->
         <h2 class="text-3xl sm:text-5xl lg:text-6xl font-black uppercase tracking-tight leading-tight">
-          Des idées transformées en 
+          Concrétiser vos rêves par une touche sur mesure
           <span class="bg-gradient-to-r from-[#F5F1E8] via-[#CFAE4F] to-[#D97742] bg-clip-text text-transparent">
-            expériences réelles.
+             : De l'excellence à la perfection.
           </span>
         </h2>
+
+        <!-- AJOUT DU SOUS-TITRE ET DE L'INTRO DES PROGRAMMES -->
+        <div class="pt-2 space-y-2">
+          <p class="text-base sm:text-lg font-medium text-slate-300">
+            Accompagnement personnalisé et institutionnel.
+          </p>
+          <p class="text-xs font-mono font-bold uppercase tracking-widest text-[#CFAE4F]">
+            Liste complète des programmes :
+          </p>
+        </div>
       </div>
 
       <!-- GRILLE DYNAMIQUE 3x2 DES 6 PROGRAMMES -->
@@ -217,7 +228,7 @@ const onCardLeave = () => {
           :href="pillar.href"
           @mouseenter="onCardHover(idx)"
           @mouseleave="onCardLeave"
-          class="reveal group relative h-[400px] rounded-3xl overflow-hidden border border-white/10 hover:border-[#CFAE4F] transition-all duration-500 shadow-2xl backdrop-blur-md hover:-translate-y-2 hover:shadow-[0_15px_35px_rgba(207,174,79,0.2)] flex flex-col justify-end"
+          class="reveal group relative h-[420px] rounded-3xl overflow-hidden border border-white/10 hover:border-[#CFAE4F] transition-all duration-500 shadow-2xl backdrop-blur-md hover:-translate-y-2 hover:shadow-[0_15px_35px_rgba(207,174,79,0.2)] flex flex-col justify-end"
           :style="`transition-delay: ${idx * 100}ms`"
         >
           <!-- VISUEL IMMERSIF AVEC ZOOM AU SURVOL -->
@@ -228,7 +239,7 @@ const onCardLeave = () => {
           />
 
           <!-- FILTRE GRADIENT ET EFFET VERRE DÉPOLI (GLASSMORPHISM) -->
-          <div class="absolute inset-0 bg-gradient-to-t from-[#070A0F] via-[#070A0F]/50 to-transparent transition-opacity duration-500"></div>
+          <div class="absolute inset-0 bg-gradient-to-t from-[#070A0F] via-[#070A0F]/60 to-transparent transition-opacity duration-500"></div>
 
           <!-- CONTENU TEXTE -->
           <div class="relative z-10 p-8 space-y-3">
@@ -236,7 +247,7 @@ const onCardLeave = () => {
               {{ pillar.code }}
             </span>
             
-            <h3 class="text-2xl font-black tracking-wide group-hover:text-[#CFAE4F] transition-colors duration-300">
+            <h3 class="text-xl sm:text-2xl font-black tracking-wide group-hover:text-[#CFAE4F] transition-colors duration-300 leading-snug">
               {{ pillar.title }}
             </h3>
 
@@ -263,6 +274,10 @@ const onCardLeave = () => {
 </template>
 
 <style scoped>
+.times-new-roman {
+  font-family: "Times New Roman", Times, serif;
+}
+
 .reveal {
   opacity: 0;
   transform: translateY(2rem);

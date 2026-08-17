@@ -303,7 +303,7 @@ const clearHoveredProgram = () => {
   <section 
     id="impact" 
     @mousemove="handleMouseMove"
-    class="min-h-screen relative overflow-hidden bg-[#070A0F] text-[#F5F1E8] py-24 px-4 sm:px-8 lg:px-16 flex flex-col justify-between z-10"
+    class="min-h-screen relative overflow-hidden bg-[#070A0F] text-[#F5F1E8] py-24 px-4 sm:px-8 lg:px-16 flex flex-col justify-between z-10 font-times"
   >
     <!-- SCÈNE THREE.JS EN ARRIÈRE-PLAN -->
     <div ref="canvasContainer" class="absolute inset-0 z-0 pointer-events-none w-full h-full opacity-80"></div>
@@ -391,6 +391,10 @@ const clearHoveredProgram = () => {
 </template>
 
 <style scoped>
+.font-times {
+  font-family: "Times New Roman", Times, serif;
+}
+
 .reveal {
   animation: fadeIn 1s ease-out forwards;
 }

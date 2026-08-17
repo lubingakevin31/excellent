@@ -156,7 +156,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <section id="vision" class="relative min-h-screen bg-[#070A0F] text-[#F5F1E8] py-24 px-4 sm:px-6 lg:px-12 flex flex-col justify-center overflow-hidden z-10">
+  <section id="vision" class="relative min-h-screen bg-[#070A0F] text-[#F5F1E8] py-24 px-4 sm:px-6 lg:px-12 flex flex-col justify-center overflow-hidden z-10 times-font">
     
     <!-- ARRIÈRE-PLAN THREE.JS (VORTEX 3D) -->
     <div ref="canvasContainer" class="absolute inset-0 z-0 pointer-events-none w-full h-full opacity-60"></div>
@@ -182,7 +182,7 @@ onBeforeUnmount(() => {
         </div>
 
         <h2 class="text-4xl sm:text-6xl lg:text-7xl font-black uppercase tracking-tight leading-none bg-gradient-to-r from-[#F5F1E8] via-[#CFAE4F] via-[#E08A70] to-[#D97742] bg-clip-text text-transparent drop-shadow-lg">
-          REPOUSSER LES LIMITES DE CE QUI EST POSSIBLE.
+          Impacter à 100%
         </h2>
 
         <p class="text-base sm:text-xl font-medium leading-relaxed text-slate-300 max-w-3xl mx-auto">
@@ -272,7 +272,7 @@ onBeforeUnmount(() => {
 
     <!-- MODAL RENDEZ-VOUS STRATÉGIQUE -->
     <div v-if="isModalOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-      <div class="relative w-full max-w-lg p-8 rounded-3xl border border-[#CFAE4F]/40 bg-[#070A0F] text-[#F5F1E8] shadow-2xl space-y-6">
+      <div class="relative w-full max-w-lg p-8 rounded-3xl border border-[#CFAE4F]/40 bg-[#070A0F] text-[#F5F1E8] shadow-2xl space-y-6 modal-content">
         
         <div class="flex items-center justify-between">
           <h3 class="text-xl font-bold text-[#CFAE4F]">Planifier un Rendez-vous</h3>
@@ -314,6 +314,20 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+.times-font,
+.times-font button,
+.times-font input,
+.times-font textarea,
+.times-font label,
+.times-font a,
+.modal-content,
+.modal-content button,
+.modal-content input,
+.modal-content textarea,
+.modal-content label {
+  font-family: 'Times New Roman', Times, serif !important;
+}
+
 /* Animations des gouttelettes d'eau fluides */
 @keyframes floatDrop1 {
   0% { top: -10%; left: 15%; opacity: 0; }
